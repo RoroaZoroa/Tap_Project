@@ -1,0 +1,44 @@
+name: itt_portal_estudiantil
+description: Portal Estudiantil - Instituto Tecnológico de Toluca
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Base de datos local
+  sqflite: ^2.3.3+1
+  sqflite_common_ffi: ^2.3.4+4
+  path: ^1.9.0
+
+  # UI y animaciones
+  google_fonts: ^6.2.1
+  shimmer: ^3.0.0
+  flip_card: ^0.7.0
+  animated_text_kit: ^4.2.3
+
+  # QR Code
+  qr_flutter: ^4.1.0
+
+  # Mapa interactivo
+  flutter_map: ^8.2.2
+  latlong2: ^0.9.1
+
+  # Icons modernos
+  iconsax_flutter: ^1.0.1
+
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
