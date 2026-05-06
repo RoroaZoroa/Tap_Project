@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'map_screen.dart';
+import '../models/estudiante.dart';
 import '../main.dart'; // Importamos el notificador global
 
 class PerfilScreen extends StatelessWidget {
-  const PerfilScreen({super.key});
+  final Estudiante estudiante;
+  const PerfilScreen({super.key, required this.estudiante});
 
   @override
   Widget build(BuildContext context) {
@@ -109,11 +112,11 @@ class PerfilScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Sebastián Ballesteros',
+                  estudiante.nombre,
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface),
                 ),
                 const SizedBox(height: 4),
-                Text('sebas.ballesteros@toluca.tecnm.mx', style: TextStyle(color: theme.hintColor, fontSize: 13)),
+                Text(estudiante.email, style: TextStyle(color: theme.hintColor, fontSize: 13)),
                 const SizedBox(height: 4),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -153,29 +156,50 @@ class PerfilScreen extends StatelessWidget {
           icono: Icons.contact_phone_outlined,
           titulo: 'Directorio Institucional',
           subtitulo: 'Números de contacto de departamentos',
-          onTap: () {},
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const DirectorioScreen()),
+            );
+          },
         ),
         _buildOpcionItem(
           context: context,
           icono: Icons.health_and_safety_outlined,
           titulo: 'Seguro Social (IMSS)',
           subtitulo: 'Información de tu seguro facultativo',
-          onTap: () {},
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const SeguroSocialScreen()),
+            );
+          },
         ),
         _buildOpcionItem(
           context: context,
           icono: Icons.link,
           titulo: 'Enlaces Rápidos',
           subtitulo: 'Portal, Moodle, Biblioteca virtual',
-          onTap: () {},
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const EnlacesScreen()),
+            );
+          },
         ),
         _buildOpcionItem(
           context: context,
           icono: Icons.description_outlined,
           titulo: 'Términos y Privacidad',
           subtitulo: 'Aviso de privacidad del ITT',
-          onTap: () {},
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const TerminosScreen()),
+            );
+          },
         ),
+
       ],
     );
   }
@@ -230,6 +254,231 @@ class PerfilScreen extends StatelessWidget {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           padding: const EdgeInsets.symmetric(vertical: 14),
         ),
+      ),
+    );
+  }
+}
+
+// --- NUEVAS PANTALLAS INSTITUCIONALES ---
+
+class DirectorioScreen extends StatelessWidget {
+  const DirectorioScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final directorio = [
+      {'depto': 'Conmutador Principal', 'numero': '722 208 7200', 'ext': ''},
+      {'depto': 'División de Estudios Profesionales', 'numero': '722 208 7200', 'ext': 'Ext. 3101'},
+      {'depto': 'Control Escolar', 'numero': '722 208 7200', 'ext': 'Ext. 3105'},
+      {'depto': 'Centro de Información (Biblioteca)', 'numero': '722 208 7200', 'ext': 'Ext. 3110'},
+      {'depto': 'Sistemas y Computación', 'numero': '722 208 7200', 'ext': 'Ext. 3115'},
+    ];
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Directorio ITT'),
+        backgroundColor: const Color(0xFF3F51B5),
+        foregroundColor: Colors.white,
+      ),
+      body: ListView.builder(
+        itemCount: directorio.length,
+        itemBuilder: (context, index) {
+          final item = directorio[index];
+          return ListTile(
+            leading: const Icon(Icons.phone, color: Color(0xFF3F51B5)),
+            title: Text(item['depto']!, style: const TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Text('${item['numero']} ${item['ext']}'),
+            trailing: IconButton(icon: const Icon(Icons.copy), onPressed: () {}),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class SeguroSocialScreen extends StatelessWidget {
+  const SeguroSocialScreen({super.key});
+
+  Future<void> _abrirVigenciaIMSS(BuildContext context) async {
+    final Uri url = Uri.parse('https://serviciosdigitales.imss.gob.mx/gestionAsegurados-web-externo/vigencia');
+    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No se pudo abrir la página')));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Seguro Facultativo'), backgroundColor: const Color(0xFF3F51B5), foregroundColor: Colors.white),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Tu Número de Seguridad Social (NSS)', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(color: Colors.blue[50], borderRadius: BorderRadius.circular(12)),
+              child: const Text('NSS: 8821-XX-XXXX', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, letterSpacing: 2)),
+            ),
+            const SizedBox(height: 24),
+            const Spacer(),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF3F51B5),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))
+                ),
+                onPressed: () => _abrirVigenciaIMSS(context),
+                child: const Text('Descargar Vigencia de Derechos', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class EnlacesScreen extends StatelessWidget {
+  const EnlacesScreen({super.key});
+
+  Future<void> _abrirEnlace(BuildContext context, String urlString) async {
+    final Uri url = Uri.parse(urlString);
+    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error al abrir el enlace')));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Enlaces Rápidos'), backgroundColor: const Color(0xFF3F51B5), foregroundColor: Colors.white),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          _buildLinkCard(context, 'Portal Oficial ITT', 'Página principal del Tecnológico', Icons.web, 'https://toluca.tecnm.mx/'),
+          _buildLinkCard(context, 'Moodle ITT', 'Plataforma de educación a distancia', Icons.menu_book, 'https://moodle.toluca.tecnm.mx/'),
+          _buildLinkCard(context, 'Mindbox (SII)', 'Consulta de calificaciones y retícula', Icons.school, 'https://toluca.mindbox.app/login/alumno'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLinkCard(BuildContext context, String title, String subtitle, IconData icon, String url) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: ListTile(
+        leading: Icon(icon, color: const Color(0xFF3F51B5), size: 30),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+        subtitle: Text(subtitle),
+        trailing: const Icon(Icons.open_in_new),
+        onTap: () => _abrirEnlace(context, url),
+      ),
+    );
+  }
+}
+
+class TerminosScreen extends StatelessWidget {
+  const TerminosScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF5F7FA),
+      appBar: AppBar(
+        title: const Text('Términos y Privacidad'),
+        backgroundColor: const Color(0xFF3F51B5),
+        foregroundColor: Colors.white,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20.0),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4)),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Encabezado del documento
+              const Row(
+                children: [
+                  Icon(Icons.shield_outlined, size: 40, color: Color(0xFF3F51B5)),
+                  SizedBox(width: 16),
+                  Expanded(
+                    child: Text(
+                      'Aviso de Privacidad Integral',
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF1E2128)),
+                    ),
+                  ),
+                ],
+              ),
+              const Divider(height: 30, thickness: 1),
+              
+              // Contenido
+              _buildSeccion('1. Identidad y Domicilio', 
+                'El Instituto Tecnológico de Toluca (ITT), con domicilio en Av. Tecnológico s/n, Agrícola Bellavista, Metepec, Edo. de México, es el responsable del tratamiento de los datos personales que nos proporcione, los cuales serán protegidos conforme a lo dispuesto por la Ley General de Protección de Datos Personales en Posesión de Sujetos Obligados.'),
+              
+              _buildSeccion('2. Finalidad de los datos', 
+                'Sus datos personales serán utilizados para las siguientes finalidades:\n\n'
+                '• Integrar su expediente académico.\n'
+                '• Gestión de inscripciones a talleres y actividades extracurriculares.\n'
+                '• Trámites de seguro facultativo (IMSS).\n'
+                '• Generación de la credencial digital institucional.'),
+
+              _buildSeccion('3. Transferencia de datos', 
+                'Se informa que no se realizarán transferencias de datos personales, salvo aquéllas que sean necesarias para atender requerimientos de información de una autoridad competente, que estén debidamente fundados y motivados.'),
+
+              _buildSeccion('4. Uso de la App (Prototipo)', 
+                'Esta aplicación es un prototipo desarrollado para la materia de Tópicos Avanzados de Programación (TAP). Los datos generados en el módulo de SQLite residen únicamente en el almacenamiento local de este dispositivo.'),
+
+              const SizedBox(height: 24),
+              
+              // Botón de confirmación
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF3F51B5),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                  ),
+                  child: const Text('Entendido', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Widget para crear secciones de texto fácilmente
+  Widget _buildSeccion(String titulo, String contenido) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(titulo, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF1E2128))),
+          const SizedBox(height: 8),
+          Text(
+            contenido,
+            style: TextStyle(fontSize: 14, color: Colors.grey[700], height: 1.5),
+            textAlign: TextAlign.justify,
+          ),
+        ],
       ),
     );
   }

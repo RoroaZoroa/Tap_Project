@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1086099766455",
+    "project_id": "itt-portal-10cdc",
+    "storage_bucket": "itt-portal-10cdc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1086099766455:android:a0f93229476654b0762132",
+        "android_client_info": {
+          "package_name": "com.itt.toluca.itt_portal_estudiantil"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB2M3JsgJ3-7UpkMj4Mdr1XvKeK5yV_AhQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

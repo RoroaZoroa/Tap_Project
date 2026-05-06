@@ -183,7 +183,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: TabBarView(
                 children: [
                   _buildBienvenidoTab(context),
-                  const CalificacionesTab(),
+                  CalificacionesTab(alumnoId: widget.estudiante.id ?? 1),
                   const CargaTab(),
                 ],
               ),

@@ -20,8 +20,8 @@ class _MainScreenState extends State<MainScreen> {
   // Lista de las pantallas que se mostrarán en el body
   late final List<Widget> _widgetOptions = <Widget>[
     HomeScreen(estudiante: widget.estudiante),
-    const TalleresScreen(),
-    const PerfilScreen(),
+    TalleresScreen(estudiante: widget.estudiante),
+    PerfilScreen(estudiante: widget.estudiante),
   ];
 
   // Método para actualizar el estado cuando se toca un ícono

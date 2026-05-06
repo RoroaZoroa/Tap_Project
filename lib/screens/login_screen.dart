@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'main_screen.dart'; 
 import '../models/estudiante.dart';
+import '../data/database_helper.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -11,6 +12,52 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   bool _obscurePassword = true;
+  final TextEditingController _userController = TextEditingController();
+  final TextEditingController _passController = TextEditingController();
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    _userController.dispose();
+    _passController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleLogin() async {
+    if (_userController.text.isEmpty || _passController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Por favor, ingresa tus datos')),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+    try {
+      final estudiante = await DatabaseHelper().login(
+        _userController.text.trim(),
+        _passController.text.trim(),
+      );
+
+      if (!mounted) return;
+
+      if (estudiante != null) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => MainScreen(estudiante: estudiante)),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Número de control o contraseña incorrectos')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al conectar con la base de datos: $e')),
+      );
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -113,6 +160,7 @@ class _LoginScreenState extends State<LoginScreen> {
           const SizedBox(height: 24),
           
           TextField(
+            controller: _userController,
             decoration: InputDecoration(
               hintText: 'Número de Control',
               prefixIcon: Icon(Icons.badge_outlined, color: theme.colorScheme.primary),
@@ -121,6 +169,7 @@ class _LoginScreenState extends State<LoginScreen> {
           const SizedBox(height: 16),
           
           TextField(
+            controller: _passController,
             obscureText: _obscurePassword,
             decoration: InputDecoration(
               hintText: 'Contraseña',
@@ -142,22 +191,10 @@ class _LoginScreenState extends State<LoginScreen> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () {
-                final mockEstudiante = Estudiante(
-                  nombre: 'Sebastián Ballesteros',
-                  numControl: '21280000',
-                  carrera: 'Ingeniería en Sistemas Computacionales',
-                  semestre: '8vo Semestre',
-                  email: 'sebas.ballesteros@toluca.tecnm.mx',
-                  password: 'password123',
-                );
-
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => MainScreen(estudiante: mockEstudiante)),
-                );
-              },
-              child: const Text('Ingresar', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              onPressed: _isLoading ? null : _handleLogin,
+              child: _isLoading 
+                ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                : const Text('Ingresar', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             ),
           ),
           const SizedBox(height: 16),
@@ -165,7 +202,50 @@ class _LoginScreenState extends State<LoginScreen> {
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
-              onPressed: () {},
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (BuildContext context) {
+                    return Dialog(
+                      backgroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      child: const Padding(
+                        padding: EdgeInsets.all(20.0),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            CircularProgressIndicator(color: Colors.blue),
+                            SizedBox(width: 20),
+                            Text('Conectando con Microsoft...', style: TextStyle(color: Colors.black87)),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                );
+
+                // 2. Esperar 2.5 segundos (Simulando la validación del token de Azure)
+                Future.delayed(const Duration(milliseconds: 2500), () {
+                  if (!mounted) return;
+                  Navigator.pop(context); // Cierra el diálogo de carga
+                  
+                  final mockEstudiante = Estudiante(
+                    nombre: 'Usuario Microsoft',
+                    numControl: 'MSFT-2026',
+                    carrera: 'Ingeniería en Sistemas',
+                    semestre: '8vo Semestre',
+                    email: 'microsoft.user@toluca.tecnm.mx',
+                    password: 'azure-token-sim',
+                  );
+
+                  // Redirige al portal
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => MainScreen(estudiante: mockEstudiante)),
+                  );
+                });
+              },
               icon: const Icon(Icons.window, color: Colors.blue), 
               label: Text('Continuar con Microsoft', style: TextStyle(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold)),
               style: OutlinedButton.styleFrom(

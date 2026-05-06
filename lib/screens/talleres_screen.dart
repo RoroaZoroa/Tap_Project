@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import '../data/database_helper.dart';
-import 'taller_detalle_screen.dart'; // Importante para que el botón "Entrar" funcione
+import '../models/estudiante.dart';
+import 'taller_detalle_screen.dart';
 
 class TalleresScreen extends StatefulWidget {
-  const TalleresScreen({super.key});
+  final Estudiante estudiante;
+  const TalleresScreen({super.key, required this.estudiante});
 
   @override
   State<TalleresScreen> createState() => _TalleresScreenState();
@@ -23,7 +25,7 @@ class _TalleresScreenState extends State<TalleresScreen> {
     final talleres = await DatabaseHelper().getTalleres();
     List<int> inscritosTemp = [];
     for (var taller in talleres) {
-      bool inscrito = await DatabaseHelper().estaInscritoEnTaller(taller['id']);
+      bool inscrito = await DatabaseHelper().estaInscritoEnTaller(taller['id'], widget.estudiante.id ?? 1);
       if (inscrito) {
         inscritosTemp.add(taller['id']);
       }
@@ -37,8 +39,6 @@ class _TalleresScreenState extends State<TalleresScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Talleres Extracurriculares'),
@@ -142,7 +142,17 @@ class _TalleresScreenState extends State<TalleresScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Image.network(taller['imagen_url'], height: 140, width: double.infinity, fit: BoxFit.cover),
+          Image.network(
+            taller['imagen_url'], 
+            height: 140, 
+            width: double.infinity, 
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) => Container(
+              height: 140,
+              color: theme.colorScheme.primary.withValues(alpha: 0.1),
+              child: Icon(Icons.image_not_supported, color: theme.colorScheme.primary, size: 40),
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
@@ -180,7 +190,7 @@ class _TalleresScreenState extends State<TalleresScreen> {
                       if (yaInscrito) {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => TallerDetalleScreen(taller: taller)),
+                          MaterialPageRoute(builder: (context) => TallerDetalleScreen(taller: taller, estudiante: widget.estudiante)),
                         );
                       } else if (!esRepresentativo) {
                         _mostrarOpcionesHorario(tallerId, taller['nombre']);
@@ -231,7 +241,7 @@ class _TalleresScreenState extends State<TalleresScreen> {
                       subtitle: Text(grupo['horario']),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                       onTap: () async {
-                        await DatabaseHelper().inscribirAlumno(grupo['id']);
+                        await DatabaseHelper().inscribirAlumno(grupo['id'], widget.estudiante.id ?? 1);
                         if (context.mounted) Navigator.pop(context);
                         _cargarInscripciones();
                       },

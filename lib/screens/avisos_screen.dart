@@ -1,46 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../data/database_helper.dart';
+import '../models/evento.dart';
 
 class AvisosScreen extends StatelessWidget {
   const AvisosScreen({super.key});
-
-  static final _avisos = [
-    const _Aviso(
-      titulo: '📅 Período de Inscripciones Abiertas',
-      cuerpo:
-          'Las inscripciones al semestre Agosto-Diciembre 2025 estarán abiertas del 14 al 28 de julio. Acude a ventanilla escolar o realízalas en línea.',
-      fecha: 'Hace 2 días',
-      tipo: 'importante',
-    ),
-    const _Aviso(
-      titulo: '⚠️ Mantenimiento Plataforma SAES',
-      cuerpo:
-          'El sistema SAES estará fuera de servicio el sábado 8 de marzo de 12:00 AM a 6:00 AM por mantenimiento programado.',
-      fecha: 'Hace 3 días',
-      tipo: 'alerta',
-    ),
-    const _Aviso(
-      titulo: '🏆 Convocatoria: Hackathon TecNM 2025',
-      cuerpo:
-          'Se abre la convocatoria para el Hackathon Nacional TecNM 2025. Equipos de 3-5 personas. Fecha límite de inscripción: 20 de marzo.',
-      fecha: 'Hace 5 días',
-      tipo: 'evento',
-    ),
-    const _Aviso(
-      titulo: '📚 Nuevos Recursos en Biblioteca Digital',
-      cuerpo:
-          'Se han añadido más de 200 títulos de ingeniería y ciencias a la biblioteca digital institucional. Acceso con tus credenciales.',
-      fecha: 'Hace 1 semana',
-      tipo: 'info',
-    ),
-    const _Aviso(
-      titulo: '🎓 Ceremonia de Titulación',
-      cuerpo:
-          'La próxima ceremonia de titulación está programada para el 15 de mayo. Los interesados deberán solicitar su expediente antes del 1ro de abril.',
-      fecha: 'Hace 1 semana',
-      tipo: 'evento',
-    ),
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -65,10 +29,39 @@ class AvisosScreen extends StatelessWidget {
           ),
         ),
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: _avisos.length,
-        itemBuilder: (ctx, i) => _AvisoCard(aviso: _avisos[i]),
+      body: FutureBuilder<List<Evento>>(
+        future: DatabaseHelper().getEventos(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(
+              child: Text(
+                'No hay avisos recientes.',
+                style: GoogleFonts.outfit(color: Colors.grey),
+              ),
+            );
+          }
+
+          final eventos = snapshot.data!;
+          return ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: eventos.length,
+            itemBuilder: (ctx, i) {
+              final evento = eventos[i];
+              return _AvisoCard(
+                aviso: _Aviso(
+                  titulo: evento.titulo,
+                  cuerpo: evento.descripcion,
+                  fecha: evento.fecha,
+                  tipo: evento.tipo.toLowerCase(),
+                ),
+              );
+            },
+          );
+        },
       ),
     );
   }

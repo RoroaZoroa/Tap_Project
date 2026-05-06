@@ -14,14 +14,14 @@ class _MapaScreenState extends State<MapaScreen> {
   final MapController _mapController = MapController();
 
   // Coordenadas aproximadas del Instituto Tecnológico de Toluca
-  final LatLng _centroITT = const LatLng(19.2585, -99.5795);
+  final LatLng _centroITT = const LatLng(19.2581, -99.5788);
 
   // Lista de Edificios (Marcadores)
   final List<Map<String, dynamic>> _edificios = [
     {
       'nombre': 'Edificio de Sistemas',
       'descripcion': 'Laboratorios de cómputo, aulas de Sistemas e Informática.',
-      'ubicacion': const LatLng(19.2590, -99.5790),
+      'ubicacion': const LatLng(19.2570, -99.5790), // Latitud reducida para bajar el pin
       'icono': Icons.computer,
       'color': Colors.blue,
       'imagen': 'https://picsum.photos/seed/sistemas/400/200'
@@ -29,7 +29,7 @@ class _MapaScreenState extends State<MapaScreen> {
     {
       'nombre': 'Edificio Administrativo',
       'descripcion': 'Servicios escolares, dirección y gestión financiera.',
-      'ubicacion': const LatLng(19.2580, -99.5798),
+      'ubicacion': const LatLng(19.2578, -99.5802), // Ajustado cerca de la entrada principal
       'icono': Icons.account_balance,
       'color': Colors.indigo,
       'imagen': 'https://picsum.photos/seed/admin/400/200'
@@ -37,7 +37,7 @@ class _MapaScreenState extends State<MapaScreen> {
     {
       'nombre': 'Gimnasio Auditorio',
       'descripcion': 'Cancha principal de básquetbol y eventos institucionales.',
-      'ubicacion': const LatLng(19.2575, -99.5785),
+      'ubicacion': const LatLng(19.2573, -99.5808), // Ajustado sobre el área verde del mapa
       'icono': Icons.sports_basketball,
       'color': Colors.orange,
       'imagen': 'https://picsum.photos/seed/gym/400/200'
@@ -45,7 +45,7 @@ class _MapaScreenState extends State<MapaScreen> {
     {
       'nombre': 'Cafetería Principal',
       'descripcion': 'Zona de alimentos y convivencia estudiantil.',
-      'ubicacion': const LatLng(19.2588, -99.5800),
+      'ubicacion': const LatLng(19.2575, -99.5795), // Bajado al centro del campus
       'icono': Icons.restaurant,
       'color': Colors.red,
       'imagen': 'https://picsum.photos/seed/cafe/400/200'
@@ -74,7 +74,7 @@ class _MapaScreenState extends State<MapaScreen> {
       mapController: _mapController,
       options: MapOptions(
         initialCenter: _centroITT,
-        initialZoom: 17.5,
+        initialZoom: 17.0,
         maxZoom: 19.0,
         minZoom: 15.0,
       ),
